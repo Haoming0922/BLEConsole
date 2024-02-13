@@ -37,7 +37,7 @@ namespace BLEConsole
         static DataFormat _sendDataFormat = DataFormat.UTF8;
 
         // Current send data format
-        static List<DataFormat> _receivedDataFormat = new List<DataFormat> { DataFormat.UTF8, DataFormat.Hex };
+        static List<DataFormat> _receivedDataFormat = new List<DataFormat> { DataFormat.UTF8 };
 
         static string _versionInfo;
 
@@ -980,7 +980,9 @@ namespace BLEConsole
                             GattReadResult result = await attr.characteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
 
                             if (result.Status == GattCommunicationStatus.Success)
-                                Console.WriteLine($"Read {result.Value.Length} bytes.\n{Utilities.FormatValueMultipleFormattes(result.Value, _receivedDataFormat)}");
+                                Console.WriteLine($"Read {result.Value.Length} bytes.\n" +
+                                    $"{Utilities.BufferToMotionData(result.Value)}");
+                                    //$"{Utilities.FormatValueMultipleFormattes(result.Value, _receivedDataFormat)}");
                             else
                             {
                                 Console.WriteLine($"Read failed: {result.Status} {Utilities.FormatProtocolError(result.ProtocolError)}");
@@ -1339,7 +1341,9 @@ namespace BLEConsole
         /// <param name="args"></param>
         static void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            var newValue = Utilities.FormatValueMultipleFormattes(args.CharacteristicValue, _receivedDataFormat);
+            //var newValue = Utilities.FormatValueMultipleFormattes(args.CharacteristicValue, _receivedDataFormat);
+
+            var newValue = Utilities.BufferToMotionData(args.CharacteristicValue);
 
             if (Console.IsInputRedirected) Console.Write($"{newValue}");
             else Console.Write($"Value changed for {sender.Uuid} ({args.CharacteristicValue.Length} bytes):\n{newValue}\nBLE: ");

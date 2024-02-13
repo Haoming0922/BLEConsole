@@ -10,6 +10,7 @@ using Windows.Storage.Streams;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace BLEConsole
 {
@@ -870,6 +871,33 @@ namespace BLEConsole
         /// <param name="buffer"></param>
         /// <param name="format"></param>
         /// <returns></returns>
+        /// s
+
+        public static string BufferToMotionData(IBuffer buffer)
+        {
+            byte[] data;
+            CryptographicBuffer.CopyToByteArray(buffer, out data);
+
+            float index = data[0];
+            float accX = BitConverter.ToSingle(data, 1);
+            float accY = BitConverter.ToSingle(data, 5);
+            float accZ = BitConverter.ToSingle(data, 9);
+            float gyroX = BitConverter.ToSingle(data, 13);
+            float gyroY = BitConverter.ToSingle(data, 17);
+            float gyroZ = BitConverter.ToSingle(data, 21);
+
+            string stringBuffer = "Index: " + index +
+                            " Acc: (" + accX + ',' + accY + ',' + accZ + ')' +
+                            " Gryo: (" + gyroX + ',' + gyroY + ',' + gyroZ + ")\n";
+
+            //return stringBuffer;
+
+            if (gyroX * gyroX > 1 || gyroY * gyroY > 1 || gyroZ * gyroZ > 1) return stringBuffer;
+            else return string.Empty;
+        }
+
+
+
         public static string FormatValueMultipleFormattes(IBuffer buffer, List<DataFormat> formatList)
         {
             byte[] data;
